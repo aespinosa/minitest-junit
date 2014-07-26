@@ -4,6 +4,10 @@ require 'minitest/junit/version'
 module Minitest
   # :nodoc:
   module Junit
-    # Your code goes here...
+    # :nodoc:
+    class Reporter
+      def initialize(_io)
+      end
+    end
   end
 end
