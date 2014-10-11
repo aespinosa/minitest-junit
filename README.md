@@ -1,6 +1,6 @@
 # Minitest::Junit
 
-TODO: Write a gem description
+Generates a JUnit-compatible XML report for consumption with Jenkins.
 
 ## Installation
 
@@ -18,11 +18,17 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    $ ruby your_test.rb --help
+    minitest options:
+    ...
+    Known extensions: junit, ...
+            --junit                      Generate a junit xml report
+            --junit-filename=OUT         Target output filename. Defaults to report.xml
+    ...
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/minitest-junit/fork )
+1. Fork it ( https://github.com/aespinosa/minitest-junit/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
