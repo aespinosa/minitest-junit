@@ -2,7 +2,6 @@ require 'minitest/autorun'
 require 'minitest/mock'
 require 'minitest/junit_plugin'
 
-# :nodoc:
 class PluginTest < Minitest::Test
   def test_by_default_the_plugin_is_disabled
     opts = OptionParser.new
