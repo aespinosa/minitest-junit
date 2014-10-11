@@ -12,7 +12,9 @@ module Minitest
         @results = []
       end
 
-      def passed?; end
+      def passed?
+        true
+      end
 
       def start; end
 
