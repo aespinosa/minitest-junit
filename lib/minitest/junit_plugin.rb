@@ -13,10 +13,9 @@ module Minitest
   end
 
   def self.plugin_junit_init(options)
-    if options[:junit]
-      file_klass = options[:file_klass] || File
-      io = file_klass.new options[:junit_filename] || 'report.xml', 'w'
-      reporter << Junit::Reporter.new(io) if options[:junit]
-    end
+    return unless options[:junit]
+    file_klass = options[:file_klass] || File
+    io = file_klass.new options[:junit_filename] || 'report.xml', 'w'
+    reporter << Junit::Reporter.new(io) if options[:junit]
   end
 end
