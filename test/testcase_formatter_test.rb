@@ -45,6 +45,16 @@ class TestCaseFormatter < Minitest::Test
     assert_match(/<error/, reporter.output)
   end
 
+  def test_jenkins_sanitizer_uses_modules_as_packages
+    test = create_test_result 'FirstModule::SecondModule::TestClass'
+    reporter = create_reporter junit_jenkins: true
+    reporter.record test
+
+    reporter.report
+
+    assert_match 'FirstModule::SecondModule.TestClass', reporter.output
+  end
+
   private
 
   def create_error(klass)
@@ -53,11 +63,12 @@ class TestCaseFormatter < Minitest::Test
     e
   end
 
-  def create_test_result
-    test = Minitest::Test.new 'passing test'
-    def test.class
-      'ATestClass'
-    end
+  def create_test_result(name='ATestClass')
+    test = Class.new Minitest::Test do
+      define_method 'class' do
+        name
+      end
+    end.new 'test_method_name'
     test.time = a_number
     test.assertions = a_number
     test
@@ -67,9 +78,9 @@ class TestCaseFormatter < Minitest::Test
     rand(100)
   end
 
-  def create_reporter
+  def create_reporter(options = {})
     io = StringIO.new ''
-    reporter = Minitest::Junit::Reporter.new io
+    reporter = Minitest::Junit::Reporter.new io, options
     def reporter.output
       @io.string
     end

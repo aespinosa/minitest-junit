@@ -7,9 +7,10 @@ module Minitest
   module Junit
     # :nodoc:
     class Reporter
-      def initialize(io)
+      def initialize(io, options)
         @io = io
         @results = []
+        @options = options
       end
 
       def passed?
@@ -56,7 +57,11 @@ module Minitest
       end
 
       def format_class(result)
-        result.class
+        if @options[:junit_jenkins]
+          result.class.to_s.gsub(/(.*)::(.*)/, '\1.\2')
+        else
+          result.class
+        end
       end
 
       def format_name(result)

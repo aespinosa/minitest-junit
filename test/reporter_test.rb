@@ -31,7 +31,7 @@ class ReporterTest < Minitest::Test
 
   def create_reporter
     io = StringIO.new
-    reporter = Minitest::Junit::Reporter.new io
+    reporter = Minitest::Junit::Reporter.new io, {}
     def reporter.output
       @io.string
     end
