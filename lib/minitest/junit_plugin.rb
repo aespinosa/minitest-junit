@@ -10,6 +10,9 @@ module Minitest
                                     ' Defaults to report.xml' do |out|
       options[:junit_filename] = out
     end
+    opts.on '--junit-jenkins', 'Sanitize test names for Jenkins display' do
+      options[:junit_jenkins] = true
+    end
   end
 
   def self.plugin_junit_init(options)

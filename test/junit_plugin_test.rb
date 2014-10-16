@@ -72,4 +72,12 @@ class PluginTest < Minitest::Test
 
     assert_equal 'somefile.xml', options[:junit_filename]
   end
+
+  def test_jenkins_sanitization_is_specified_by_a_flag
+    opts = OptionParser.new
+    options = {}
+    Minitest.plugin_junit_options opts, options
+    opts.parse('--junit-jenkins')
+    assert options[:junit_jenkins]
+  end
 end
