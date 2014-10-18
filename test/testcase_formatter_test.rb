@@ -63,7 +63,7 @@ class TestCaseFormatter < Minitest::Test
     e
   end
 
-  def create_test_result(name='ATestClass')
+  def create_test_result(name = 'ATestClass')
     test = Class.new Minitest::Test do
       define_method 'class' do
         name
