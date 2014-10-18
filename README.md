@@ -24,6 +24,7 @@ Or install it yourself as:
     Known extensions: junit, ...
             --junit                      Generate a junit xml report
             --junit-filename=OUT         Target output filename. Defaults to report.xml
+            --junit-jenkins              Sanitize test names for Jenkins display
     ...
 
 ## Contributing
