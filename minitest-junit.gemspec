@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'minitest', '~> 5.0'
   spec.add_dependency 'builder', '~> 3.2'
 
-  spec.add_development_dependency 'bundler', '~> 1.6'
+  spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake', '~> 10.3.2'
   spec.add_development_dependency 'rubocop', '~> 0.24.1'
 end
