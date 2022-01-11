@@ -33,10 +33,13 @@ module Minitest
         xml = Builder::XmlMarkup.new
         xml.testcase classname: format_class(result), name: format_name(result),
                      time: result.time, assertions: result.assertions do |t|
-          t.skipped if result.skipped?
-          result.failures.each do |failure|
-            type = classify failure
-            xml.tag! type, format_backtrace(failure), message: result
+          if result.skipped?
+            t.skipped
+          else
+            result.failures.each do |failure|
+              type = classify failure
+              xml.tag! type, format_backtrace(failure), message: result
+            end
           end
         end
         xml.target!
