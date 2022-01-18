@@ -1,6 +1,6 @@
 module Minitest
   # :nodoc:
   module Junit
-    VERSION = '0.2.1-dev'
+    VERSION = '0.3.0'
   end
 end
