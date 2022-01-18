@@ -20,7 +20,7 @@ class TestCaseFormatter < Minitest::Test
 
     reporter.report
 
-    assert_match(/<skipped\/>/, reporter.output)
+    assert_match(/<skipped message="[^<>]+"\/><\/testcase>\n<\/testsuite>\n/, reporter.output)
   end
 
   def test_failing_tests_creates_failure_tag
