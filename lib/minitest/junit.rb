@@ -1,6 +1,8 @@
 require 'minitest/junit/version'
 require 'minitest'
 require 'builder'
+require 'socket'
+require 'time'
 
 # :nodoc:
 module Minitest
@@ -24,15 +26,24 @@ module Minitest
       end
 
       def report
-        @io.puts '<testsuite>'
-        @results.each { |result| @io.puts format(result) }
-        @io.puts '</testsuite>'
+        xml = Builder::XmlMarkup.new(:indent => 2)
+        xml.testsuite(name: 'minitest',
+                      timestamp: Time.now.iso8601,
+                      hostname: Socket.gethostname,
+                      tests: @results.count,
+                      skipped: @results.count { |result| result.skipped? },
+                      failures: @results.count { |result| !result.error? && result.failure },
+                      errors: @results.count { |result| result.error? },
+                      time: format_time(@results.inject(0) { |accum, result| accum += result.time }) ) do
+                        @results.each { |result| format(result, xml) }
+                      end
+        @io.puts xml.target!
       end
 
-      def format(result)
-        xml = Builder::XmlMarkup.new
+      def format(result, parent=nil)
+        xml = Builder::XmlMarkup.new(:target => parent, :indent => 2)
         xml.testcase classname: format_class(result), name: format_name(result),
-                     time: result.time, assertions: result.assertions do |t|
+                     time: format_time(result.time), assertions: result.assertions do |t|
           if result.skipped?
             t.skipped message: result
           else
@@ -42,7 +53,7 @@ module Minitest
             end
           end
         end
-        xml.target!
+        xml
       end
 
       private
@@ -70,6 +81,11 @@ module Minitest
       def format_name(result)
         result.name
       end
+
+      def format_time(time)
+        '%.6f' % time
+      end
+
     end
   end
 end
