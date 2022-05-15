@@ -4,6 +4,14 @@ require 'time'
 
 require 'minitest/junit'
 
+class FakeTestName; end
+
+module FirstModule
+  module SecondModule
+    class TestClass; end
+  end
+end
+
 class TestCaseFormatter < Minitest::Test
   def test_all_tests_generate_testcase_tag
     test = create_test_result
@@ -46,7 +54,7 @@ class TestCaseFormatter < Minitest::Test
   end
 
   def test_jenkins_sanitizer_uses_modules_as_packages
-    test = create_test_result 'FirstModule::SecondModule::TestClass'
+    test = create_test_result FirstModule::SecondModule::TestClass
     reporter = create_reporter junit_jenkins: true
     reporter.record test
 
@@ -63,7 +71,7 @@ class TestCaseFormatter < Minitest::Test
     e
   end
 
-  def create_test_result(name = 'ATestClass')
+  def create_test_result(name = FakeTestName)
     test = Class.new Minitest::Test do
       define_method 'class' do
         name
@@ -71,7 +79,7 @@ class TestCaseFormatter < Minitest::Test
     end.new 'test_method_name'
     test.time = a_number
     test.assertions = a_number
-    test
+    Minitest::Result.from test
   end
 
   def a_number

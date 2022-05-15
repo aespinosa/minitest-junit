@@ -61,9 +61,9 @@ module Minitest
 
       def format_class(result)
         if @options[:junit_jenkins]
-          result.class.to_s.gsub(/(.*)::(.*)/, '\1.\2')
+          result.klass.to_s.gsub(/(.*)::(.*)/, '\1.\2')
         else
-          result.class
+          result.klass
         end
       end
 
