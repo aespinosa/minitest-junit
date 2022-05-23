@@ -13,6 +13,8 @@ module Minitest
         @io = io
         @results = []
         @options = options
+        @options[:timestamp] = options.fetch(:timestamp, Time.now.iso8601)
+        @options[:hostname] = options.fetch(:hostname, Socket.gethostname)
       end
 
       def passed?
@@ -28,8 +30,8 @@ module Minitest
       def report
         xml = Builder::XmlMarkup.new(:indent => 2)
         xml.testsuite(name: 'minitest',
-                      timestamp: Time.now.iso8601,
-                      hostname: Socket.gethostname,
+                      timestamp: @options[:timestamp],
+                      hostname: @options[:hostname],
                       tests: @results.count,
                       skipped: @results.count { |result| result.skipped? },
                       failures: @results.count { |result| !result.error? && result.failure },
