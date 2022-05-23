@@ -36,16 +36,18 @@ module Minitest
                       skipped: @results.count { |result| result.skipped? },
                       failures: @results.count { |result| !result.error? && result.failure },
                       errors: @results.count { |result| result.error? },
-                      time: format_time(@results.inject(0) { |accum, result| accum += result.time }) ) do
+                      time: format_time(@results.inject(0) { |a, e| a += e.time })) do
                         @results.each { |result| format(result, xml) }
                       end
         @io.puts xml.target!
       end
 
-      def format(result, parent=nil)
+      def format(result, parent = nil)
         xml = Builder::XmlMarkup.new(:target => parent, :indent => 2)
-        xml.testcase classname: format_class(result), name: format_name(result),
-                     time: format_time(result.time), assertions: result.assertions do |t|
+        xml.testcase classname: format_class(result),
+                     name: format_name(result),
+                     time: format_time(result.time),
+                     assertions: result.assertions do |t|
           if result.skipped?
             t.skipped message: result
           else
@@ -85,9 +87,8 @@ module Minitest
       end
 
       def format_time(time)
-        '%.6f' % time
+        Kernel::format('%.6f', time)
       end
-
     end
   end
 end
