@@ -1,6 +1,8 @@
 require 'minitest/junit/version'
 require 'minitest'
 require 'builder'
+require 'socket'
+require 'time'
 
 # :nodoc:
 module Minitest
@@ -11,6 +13,8 @@ module Minitest
         @io = io
         @results = []
         @options = options
+        @options[:timestamp] = options.fetch(:timestamp, Time.now.iso8601)
+        @options[:hostname] = options.fetch(:hostname, Socket.gethostname)
       end
 
       def passed?
@@ -24,15 +28,26 @@ module Minitest
       end
 
       def report
-        @io.puts '<testsuite>'
-        @results.each { |result| @io.puts format(result) }
-        @io.puts '</testsuite>'
+        xml = Builder::XmlMarkup.new(:indent => 2)
+        xml.testsuite(name: 'minitest',
+                      timestamp: @options[:timestamp],
+                      hostname: @options[:hostname],
+                      tests: @results.count,
+                      skipped: @results.count { |result| result.skipped? },
+                      failures: @results.count { |result| !result.error? && result.failure },
+                      errors: @results.count { |result| result.error? },
+                      time: format_time(@results.inject(0) { |a, e| a += e.time })) do
+                        @results.each { |result| format(result, xml) }
+                      end
+        @io.puts xml.target!
       end
 
-      def format(result)
-        xml = Builder::XmlMarkup.new
-        xml.testcase classname: format_class(result), name: format_name(result),
-                     time: result.time, assertions: result.assertions do |t|
+      def format(result, parent = nil)
+        xml = Builder::XmlMarkup.new(:target => parent, :indent => 2)
+        xml.testcase classname: format_class(result),
+                     name: format_name(result),
+                     time: format_time(result.time),
+                     assertions: result.assertions do |t|
           if result.skipped?
             t.skipped message: result
           else
@@ -42,7 +57,7 @@ module Minitest
             end
           end
         end
-        xml.target!
+        xml
       end
 
       private
@@ -69,6 +84,10 @@ module Minitest
 
       def format_name(result)
         result.name
+      end
+
+      def format_time(time)
+        Kernel::format('%.6f', time)
       end
     end
   end
