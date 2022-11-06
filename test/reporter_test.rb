@@ -60,7 +60,7 @@ class ReporterTest < Minitest::Test
     test.failures = failures.times.map do |i|
       Class.new Minitest::Assertion do
         define_method 'backtrace' do
-          ["Model failure \##{i}", 'This is a test backtrace']
+          ["Model failure \##{i}", 'This is a test backtrace', "#{__FILE__}:#{__LINE__}"]
         end
       end.new
     end
