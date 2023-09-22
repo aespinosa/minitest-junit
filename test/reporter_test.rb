@@ -2,6 +2,7 @@ require 'minitest/autorun'
 require 'builder'
 require 'stringio'
 require 'time'
+require 'nokogiri'
 
 require 'minitest/junit'
 
@@ -28,11 +29,23 @@ class ReporterTest < Minitest::Test
     reporter = create_reporter
 
     results = do_formatting_test(reporter, count: rand(100), cause_failures: 1)
-
+    parsed_report = Nokogiri::XML(reporter.output)
     results.each do |result|
-      assert_match("<testcase classname=\"FakeTestName\" name=\"#{result.name}\"", reporter.output)
-      assert_match(/<failure/, reporter.output)
+      parsed_report.xpath("//testcase[@name='#{result.name}']").any?
     end
+    # Check if some testcase has a failure
+    assert parsed_report.xpath("//testcase//failure").any?
+  end
+
+  def test_xml_nodes_has_file_and_line_attributes
+    reporter = create_reporter
+    results = do_formatting_test(reporter, count: 2, cause_failures: 1)
+    parsed_report = Nokogiri::XML(reporter.output)
+    example_node = parsed_report.xpath("//testcase").first
+    assert example_node.has_attribute?('file')
+    assert example_node.has_attribute?('line')
+    assert_equal 'unknown', example_node.attribute('file').value
+    assert_equal '-1', example_node.attribute('line').value
   end
 
   private
