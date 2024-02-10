@@ -55,7 +55,7 @@ module Minitest
           else
             result.failures.each do |failure|
               type = classify failure
-              xml.tag! type, format_backtrace(failure), message: result
+              xml.tag! type, format_backtrace(failure), message: failure_message(result)
             end
           end
         end
@@ -72,8 +72,18 @@ module Minitest
         end
       end
 
+      def working_directory
+        @working_directory ||= Dir.getwd
+      end
+
+      def failure_message(result)
+        "#{result.klass}##{result.name}: #{result.failure.to_s}"
+      end
+
       def format_backtrace(failure)
-        failure.backtrace.join("\n")
+        Minitest.filter_backtrace(failure.backtrace).map do |line|
+          line.gsub(working_directory, '.')
+        end.join("\n")
       end
 
       def format_class(result)
