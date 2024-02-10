@@ -47,6 +47,8 @@ module Minitest
         xml.testcase classname: format_class(result),
                      name: format_name(result),
                      time: format_time(result.time),
+                     file: result.source_location.first,
+                     line: result.source_location.last,
                      assertions: result.assertions do |t|
           if result.skipped?
             t.skipped message: result
