@@ -24,6 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'nokogiri'
   spec.add_development_dependency 'pry-byebug'
-  spec.add_development_dependency 'rake', '~> 10.3.2'
-  spec.add_development_dependency 'rubocop', '~> 0.24.1'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rubocop', '~> 1'
 end
