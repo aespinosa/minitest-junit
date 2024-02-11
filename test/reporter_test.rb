@@ -1,10 +1,11 @@
 require 'minitest/autorun'
-require 'builder'
 require 'stringio'
 require 'time'
 require 'nokogiri'
 
 require 'minitest/junit'
+
+class FakeTestName; end
 
 class ReporterTest < Minitest::Test
   def test_no_tests_generates_an_empty_suite
@@ -12,7 +13,10 @@ class ReporterTest < Minitest::Test
 
     reporter.report
 
-    assert_match(/^<testsuite name="minitest" timestamp="[^"]+" hostname="[^"]+" tests="0" skipped="0" failures="0" errors="0" time="0.000000">\n<\/testsuite>\n$/, reporter.output)
+    assert_match(
+      %r{<?xml version="1.0" encoding="UTF-8"\?>\n<testsuite name="minitest" timestamp="[^"]+" hostname="[^"]+" tests="0" skipped="0" failures="0" errors="0" time="0.000000"\/>},
+      reporter.output
+    )
   end
 
   def test_formats_each_successful_result_with_a_formatter

@@ -1,6 +1,6 @@
 require 'minitest/junit/version'
 require 'minitest'
-require 'builder'
+require 'ox'
 require 'socket'
 require 'time'
 
@@ -28,38 +28,51 @@ module Minitest
       end
 
       def report
-        xml = Builder::XmlMarkup.new(:indent => 2)
-        xml.testsuite(name: 'minitest',
-                      timestamp: @options[:timestamp],
-                      hostname: @options[:hostname],
-                      tests: @results.count,
-                      skipped: @results.count { |result| result.skipped? },
-                      failures: @results.count { |result| !result.error? && result.failure },
-                      errors: @results.count { |result| result.error? },
-                      time: format_time(@results.inject(0) { |a, e| a += e.time })) do
-                        @results.each { |result| format(result, xml) }
-                      end
-        @io.puts xml.target!
+        doc = Ox::Document.new(:version => '1.0')
+        instruct = Ox::Instruct.new(:xml)
+        instruct[:version] = '1.0'
+        instruct[:encoding] = 'UTF-8'
+        doc << instruct
+        testsuite = Ox::Element.new('testsuite')
+        testsuite['name'] = @options[:name] || 'minitest'
+        testsuite['timestamp'] = @options[:timestamp]
+        testsuite['hostname'] = @options[:hostname]
+        testsuite['tests'] = @results.size
+        testsuite['skipped'] = @results.count(&:skipped?)
+        testsuite['failures'] = @results.count { |result| !result.error? && result.failure }
+        testsuite['errors'] = @results.count(&:error?)
+        testsuite['time'] = format_time(@results.map(&:time).inject(0, :+))
+        @results.each do |result|
+          testsuite << format(result)
+        end
+
+        doc << testsuite
+        @io << Ox.dump(doc)
       end
 
       def format(result, parent = nil)
-        xml = Builder::XmlMarkup.new(:target => parent, :indent => 2)
-        xml.testcase classname: format_class(result),
-                     name: format_name(result),
-                     time: format_time(result.time),
-                     file: result.source_location.first,
-                     line: result.source_location.last,
-                     assertions: result.assertions do |t|
-          if result.skipped?
-            t.skipped message: result
-          else
-            result.failures.each do |failure|
-              type = classify failure
-              xml.tag! type, format_backtrace(failure), message: failure_message(result)
-            end
+        testcase = Ox::Element.new('testcase')
+        testcase['classname'] = format_class(result)
+        testcase['name'] = format_name(result)
+        testcase['time'] = format_time(result.time)
+        testcase['file'] = relative_to_cwd(result.source_location.first)
+        testcase['line'] = result.source_location.last
+        testcase['assertions'] = result.assertions
+        if result.skipped?
+          skipped = Ox::Element.new('skipped')
+          skipped['message'] = result
+          skipped << ""
+          testcase << skipped
+        else
+          result.failures.each do |failure|
+            failure_tag = Ox::Element.new(classify(failure))
+            failure_tag['message'] = result
+            failure_tag << format_backtrace(failure)
+            testcase << failure_tag
           end
         end
-        xml
+
+        testcase
       end
 
       private
@@ -77,12 +90,16 @@ module Minitest
       end
 
       def failure_message(result)
-        "#{result.klass}##{result.name}: #{result.failure.to_s}"
+        "#{result.klass}##{result.name}: #{result.failure}"
+      end
+
+      def relative_to_cwd(path)
+        path.sub(working_directory, '.')
       end
 
       def format_backtrace(failure)
         Minitest.filter_backtrace(failure.backtrace).map do |line|
-          line.gsub(working_directory, '.')
+          relative_to_cwd(line)
         end.join("\n")
       end
 

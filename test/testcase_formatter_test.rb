@@ -17,7 +17,10 @@ class TestCaseFormatter < Minitest::Test
     test = create_test_result
     reporter = create_reporter
 
-    assert_match test.name, reporter.format(test).target!
+    assert_match(
+      test.name,
+      reporter.format(test).attributes['name']
+    )
   end
 
   def test_skipped_tests_generates_skipped_tag
@@ -28,7 +31,7 @@ class TestCaseFormatter < Minitest::Test
 
     reporter.report
 
-    assert_match(/<skipped message="[^<>]+"\/>\n<\/testcase>\n<\/testsuite>\n/, reporter.output)
+    assert_match(/<skipped message="[^<>]+"\><\/skipped>\n\s+<\/testcase>\n\s*<\/testsuite>\n/, reporter.output)
   end
 
   def test_failing_tests_creates_failure_tag
