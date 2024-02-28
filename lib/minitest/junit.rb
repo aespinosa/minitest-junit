@@ -28,7 +28,7 @@ module Minitest
       end
 
       def report
-        doc = Ox::Document.new(:version => '1.0')
+        doc = Ox::Document.new(version: '1.0', encoding: 'UTF-8')
         instruct = Ox::Instruct.new(:xml)
         instruct[:version] = '1.0'
         instruct[:encoding] = 'UTF-8'
@@ -87,10 +87,6 @@ module Minitest
 
       def working_directory
         @working_directory ||= Dir.getwd
-      end
-
-      def failure_message(result)
-        "#{result.klass}##{result.name}: #{result.failure}"
       end
 
       def relative_to_cwd(path)

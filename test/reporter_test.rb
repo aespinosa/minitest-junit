@@ -19,6 +19,18 @@ class ReporterTest < Minitest::Test
     )
   end
 
+  # NOTE: This test will generate a temp file: "test/tmp/report.xml"
+  def test_encoding
+    # Enforce File.external_encoding to UTF-8 to ensure that ASCII character will be correctly converted to UTF-8
+    file = File.new('test/tmp/report.xml', 'w:UTF-8')
+    reporter = Minitest::Junit::Reporter.new file, { hostname: '‹foo›' }
+    reporter.start
+    reporter.report
+    file.close
+
+    assert_match(/hostname="‹foo›"/, File.new('test/tmp/report.xml', 'r:UTF-8').read)
+  end
+
   def test_formats_each_successful_result_with_a_formatter
     reporter = create_reporter
 
