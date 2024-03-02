@@ -14,7 +14,7 @@ class ReporterTest < Minitest::Test
     reporter.report
 
     assert_match(
-      %r{<?xml version="1.0" encoding="UTF-8"\?>\n<testsuite name="minitest" timestamp="[^"]+" hostname="[^"]+" tests="0" skipped="0" failures="0" errors="0" time="0.000000"\/>},
+      %r{<?xml version="1.0" encoding="UTF-8"\?>\n<testsuites>\n  <testsuite name="minitest" timestamp="[^"]+" hostname="[^"]+" tests="0" skipped="0" failures="0" errors="0" time="0.000000"\/>\n<\/testsuites>\n},
       reporter.output
     )
   end

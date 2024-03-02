@@ -33,6 +33,7 @@ module Minitest
         instruct[:version] = '1.0'
         instruct[:encoding] = 'UTF-8'
         doc << instruct
+
         testsuite = Ox::Element.new('testsuite')
         testsuite['name'] = @options[:name] || 'minitest'
         testsuite['timestamp'] = @options[:timestamp]
@@ -46,7 +47,10 @@ module Minitest
           testsuite << format(result)
         end
 
-        doc << testsuite
+        testsuites = Ox::Element.new('testsuites')
+        testsuites << testsuite
+
+        doc << testsuites
         @io << Ox.dump(doc)
       end
 
