@@ -39,7 +39,7 @@ class ReporterTest < Minitest::Test
     end
     # Check if some testcase has a failure and screenshot path
     assert parsed_report.xpath("//testcase//failure").any?
-    assert parsed_report.xpath("//testcase[@screenshot]").any?
+    assert parsed_report.xpath("//testcase//system-out").any?
   end
 
   def test_xml_nodes_has_file_and_line_attributes
