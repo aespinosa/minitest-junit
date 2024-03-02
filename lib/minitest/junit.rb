@@ -58,6 +58,13 @@ module Minitest
         testcase['file'] = relative_to_cwd(result.source_location.first)
         testcase['line'] = result.source_location.last
         testcase['assertions'] = result.assertions
+
+        # Minitest 5.19 supports metadata
+        # Rails 7.1 adds `failure_screenshot_path` to metadata
+        if result.respond_to?('metadata') && result.metadata[:failure_screenshot_path]
+          testcase['screenshot'] = relative_to_cwd(result.metadata[:failure_screenshot_path])
+        end
+
         if result.skipped?
           skipped = Ox::Element.new('skipped')
           skipped['message'] = result
