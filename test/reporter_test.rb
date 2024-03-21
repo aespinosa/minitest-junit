@@ -49,8 +49,9 @@ class ReporterTest < Minitest::Test
     results.each do |result|
       parsed_report.xpath("//testcase[@name='#{result.name}']").any?
     end
-    # Check if some testcase has a failure
+    # Check if some testcase has a failure and screenshot path
     assert parsed_report.xpath("//testcase//failure").any?
+    assert parsed_report.xpath("//testcase//system-out").any?
   end
 
   def test_xml_nodes_has_file_and_line_attributes
@@ -93,6 +94,11 @@ class ReporterTest < Minitest::Test
         end
       end.new
     end
+
+    if failures.positive?
+      test.metadata[:failure_screenshot_path] = '/tmp/screenshot.png'
+    end
+
     Minitest::Result.from test
   end
 

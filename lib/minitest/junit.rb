@@ -62,6 +62,7 @@ module Minitest
         testcase['file'] = relative_to_cwd(result.source_location.first)
         testcase['line'] = result.source_location.last
         testcase['assertions'] = result.assertions
+
         if result.skipped?
           skipped = Ox::Element.new('skipped')
           skipped['message'] = result
@@ -74,6 +75,16 @@ module Minitest
             failure_tag << format_backtrace(failure)
             testcase << failure_tag
           end
+        end
+
+        # Minitest 5.19 supports metadata
+        # Rails 7.1 adds `failure_screenshot_path` to metadata
+        # Output according to Gitlab format
+        # https://docs.gitlab.com/ee/ci/testing/unit_test_reports.html#view-junit-screenshots-on-gitlab
+        if result.respond_to?("metadata") && result.metadata[:failure_screenshot_path]
+          screenshot = Ox::Element.new("system-out")
+          screenshot << "[[ATTACHMENT|#{result.metadata[:failure_screenshot_path]}]]"
+          testcase << screenshot
         end
 
         testcase
